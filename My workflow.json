@@ -1,0 +1,85 @@
+{
+  "name": "My workflow",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "guardar-pdf",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -192,
+        -48
+      ],
+      "id": "de567fc9-4541-475f-88be-e80677189d57",
+      "name": "Webhook",
+      "webhookId": "5cbca13d-5241-4c06-9c26-577eadb3047c"
+    },
+    {
+      "parameters": {
+        "jsCode": "const { PDFDocument } = require('pdf-lib'); // librería incluida en n8n o puedes instalarla en tu instancia\n\nasync function crearPDF() {\n    const pdfDoc = await PDFDocument.create();\n    const page = pdfDoc.addPage([595, 842]);\n\n    // Tomar los datos recibidos del Webhook\n    const { sistolica, diastolica, edad, recomendacion } = items[0].json;\n    const fecha = new Date().toLocaleString();\n\n    page.drawText(`Reporte de Presión Arterial`, { x: 160, y: 800, size: 18 });\n    page.drawText(`Fecha: ${fecha}`, { x: 40, y: 760, size: 14 });\n    page.drawText(`Edad: ${edad}`, { x: 40, y: 740, size: 14 });\n    page.drawText(`Sistólica: ${sistolica}`, { x: 40, y: 720, size: 14 });\n    page.drawText(`Diastólica: ${diastolica}`, { x: 40, y: 700, size: 14 });\n    page.drawText(`Recomendación: ${recomendacion}`, { x: 40, y: 680, size: 14 });\n\n    const pdfBytes = await pdfDoc.save();\n  \n\n    // Devuelve el PDF como base64\n    return [{ json: { pdfBase64: Buffer.from(pdfBytes).toString('base64') } }];\n}\n\nreturn crearPDF();\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        16,
+        -48
+      ],
+      "id": "43bd4cda-faa3-494a-86a9-191825d112e3",
+      "name": "Code in JavaScript",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "respondWith": "binary",
+        "responseDataSource": "set",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        240,
+        -48
+      ],
+      "id": "0bc01669-ffb9-4c19-972f-b1025439439a",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Respond to Webhook": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "5d40e51e-d62a-4887-ac0e-b916d0a9e05d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f420b70f5cbf8e747ad0db91d14453f62af583ba131556cae70489ea3b4e7173"
+  },
+  "id": "5XD1YKEQqr5bjfDw",
+  "tags": []
+}
